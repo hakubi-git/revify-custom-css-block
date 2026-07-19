@@ -4,7 +4,7 @@ Tags: custom css, block editor, gutenberg, responsive css
 Requires at least: 6.5
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 3.0.0
+Stable tag: 3.0.2
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -33,7 +33,7 @@ Revify Custom CSS Block は、ブロックエディター上で見た目を確�
 * scopeIdを保存時に自動同期しません。
 * 親なしの `selector` を `body` へ自動置換しません。
 
-異常が疑われる場合は、編集画面に警告またはデバッグ情報を表示します。
+異常が疑われる場合は、編集画面に警告を表示します。
 
 == Warnings ==
 
@@ -44,7 +44,7 @@ Revify Custom CSS Block は、ブロックエディター上で見た目を確�
 * CSSブロックの `scopeId` と親ブロックの `revify-scope-*` が一致しない場合。
 * `{` と `}` の数が一致していない可能性がある場合。
 
-警告は表示のみです。プラグインが自動修正することはありません。
+既存データは警告表示のみです。親セクションを複製して新しい親ブロックに同じスコープIDが生じた場合に限り、複製先のIDを自動で振り直します。
 
 == Security ==
 
@@ -52,6 +52,16 @@ Revify Custom CSS Block は、ブロックエディター上で見た目を確�
 外部CDNや独自の外部通信は行いません。GitHub経由の更新は Git Updater に委ねます。
 
 == Changelog ==
+
+= 3.0.2 =
+* 親セクションの複製時に、複製先のスコープIDを自動で振り直すようにしました。
+* 異なる親ブロックで同じスコープIDが残っている場合の警告を追加しました。
+* 既存ページを開いただけではスコープIDを変更しません。
+
+= 3.0.1 =
+* 通常時に表示されていた「デバッグ情報を表示」を削除しました。
+* 「色分けエディターを使う」ボタンの文字色と背景色を調整し、可読性を改善しました。
+* 色分けエディター入力時のみ、属性更新後の次フレームでプレビューを再評価するよう修正しました。
 
 = 3.0.0 =
 * 配布版としてプラグイン名、フォルダ名、GitHubリポジトリ名を Revify Custom CSS Block / revify-custom-css-block に統一しました。
@@ -70,6 +80,11 @@ Revify Custom CSS Block は、ブロックエディター上で見た目を確�
 * CSS変数設定ページの使用例を、`selector`を使わない一般的なCSSクラス例へ変更しました。機能面の変更はありません。
 
 == Changelog ==
+
+= 3.0.2 =
+* 親セクションの複製時に、複製先のスコープIDを自動で振り直すようにしました。
+* 異なる親ブロックで同じスコープIDが残っている場合の警告を追加しました。
+* 既存ページを開いただけではスコープIDを変更しません。
 
 = 3.0.0 =
 * Revify Custom CSS Block として名称を統一しました。

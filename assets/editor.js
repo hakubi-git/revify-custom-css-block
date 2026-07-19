@@ -85,6 +85,12 @@
 
 			const handleChange = function (instance) {
 				changeHandlerRef.current(instance.getValue());
+
+				// 色分けエディター入力時だけ、属性更新後の次フレームで
+				// プレビューを再評価します。メディアクエリ生成処理には触れません。
+				window.requestAnimationFrame(function () {
+					scheduleEditorPreviewCssUpdate(0);
+				});
 			};
 			codeMirror.on('change', handleChange);
 			window.requestAnimationFrame(function () {
@@ -447,7 +453,155 @@
 		return { opens: opens, closes: closes, balanced: opens === closes };
 	}
 
-	function buildScopeDiagnostics(attributes, parentBlock, canScopeParent) {
+
+	function createFreshScopeId(usedScopeIds) {
+		let candidate = '';
+		do {
+			if (window.crypto && typeof window.crypto.randomUUID === 'function') {
+				candidate = 'r' + window.crypto.randomUUID().replace(/-/g, '').slice(0, 12).toLowerCase();
+			} else {
+				candidate = 'r' + Math.random().toString(36).slice(2, 14);
+			}
+		} while (!candidate || usedScopeIds.has(candidate));
+		return candidate;
+	}
+
+	function collectScopedParents(blocks, parentBlock, output) {
+		(blocks || []).forEach(function (block) {
+			if (block.name === 'revify/custom-css' && parentBlock) {
+				const scopeId = sanitizeScopeId((block.attributes || {}).scopeId || '');
+				if (scopeId) {
+					output.push({
+						cssClientId: block.clientId,
+						parentClientId: parentBlock.clientId,
+						scopeId: scopeId
+					});
+				}
+			}
+			if (block.innerBlocks && block.innerBlocks.length) {
+				collectScopedParents(block.innerBlocks, block, output);
+			}
+		});
+	}
+
+	function countDistinctParentsForScope(blocks, targetScopeId) {
+		if (!targetScopeId) return 0;
+		const usages = [];
+		collectScopedParents(blocks || [], null, usages);
+		const parents = new Set();
+		usages.forEach(function (usage) {
+			if (usage.scopeId === targetScopeId) parents.add(usage.parentClientId);
+		});
+		return parents.size;
+	}
+
+	let scopeDuplicateGuardReady = false;
+	let scopeDuplicateGuardBusy = false;
+	let knownScopedParentIds = new Set();
+
+	function snapshotScopedParentIds() {
+		const store = wp.data.select('core/block-editor');
+		if (!store || !store.getBlocks) return new Set();
+		const usages = [];
+		collectScopedParents(store.getBlocks(), null, usages);
+		return new Set(usages.map(function (usage) { return usage.parentClientId; }));
+	}
+
+	function repairNewDuplicateScopes() {
+		if (!scopeDuplicateGuardReady || scopeDuplicateGuardBusy) return;
+
+		const store = wp.data.select('core/block-editor');
+		const editorStore = wp.data.select('core/editor');
+		const dispatcher = wp.data.dispatch('core/block-editor');
+		if (!store || !store.getBlocks || !dispatcher || !dispatcher.updateBlockAttributes) return;
+
+		// 初期読み込み中・未編集時は現在の状態を基準として記録するだけにします。
+		// これにより、既存ページを開いただけでスコープIDを書き換えません。
+		if (editorStore && typeof editorStore.isEditedPostDirty === 'function' && !editorStore.isEditedPostDirty()) {
+			knownScopedParentIds = snapshotScopedParentIds();
+			return;
+		}
+
+		const usages = [];
+		collectScopedParents(store.getBlocks(), null, usages);
+		if (!usages.length) {
+			knownScopedParentIds = new Set();
+			return;
+		}
+
+		const usedScopeIds = new Set(usages.map(function (usage) { return usage.scopeId; }));
+		const parentsByScope = new Map();
+		usages.forEach(function (usage) {
+			if (!parentsByScope.has(usage.scopeId)) parentsByScope.set(usage.scopeId, []);
+			const parentIds = parentsByScope.get(usage.scopeId);
+			if (parentIds.indexOf(usage.parentClientId) === -1) parentIds.push(usage.parentClientId);
+		});
+
+		const repairs = [];
+		parentsByScope.forEach(function (parentIds, scopeId) {
+			if (parentIds.length < 2) return;
+
+			const existingParents = parentIds.filter(function (parentId) {
+				return knownScopedParentIds.has(parentId);
+			});
+			const newParents = parentIds.filter(function (parentId) {
+				return !knownScopedParentIds.has(parentId);
+			});
+
+			// 既存ページを開いただけでは変更しません。
+			// 新しく追加された親だけを複製先候補として扱います。
+			if (!newParents.length) return;
+
+			// 同じ操作で新規親が複数追加された場合、既存親があれば新規親をすべて、
+			// 既存親がなければ先頭以外を振り直します。
+			const targets = existingParents.length ? newParents : newParents.slice(1);
+			targets.forEach(function (parentId) {
+				repairs.push({ parentClientId: parentId, oldScopeId: scopeId });
+			});
+		});
+
+		if (!repairs.length) {
+			knownScopedParentIds = new Set(usages.map(function (usage) { return usage.parentClientId; }));
+			return;
+		}
+
+		scopeDuplicateGuardBusy = true;
+		repairs.forEach(function (repair) {
+			const parentBlock = store.getBlock(repair.parentClientId);
+			if (!parentBlock || !parentBlock.attributes) return;
+
+			const newScopeId = createFreshScopeId(usedScopeIds);
+			usedScopeIds.add(newScopeId);
+			const oldScopeClass = 'revify-scope-' + repair.oldScopeId;
+			const newScopeClass = 'revify-scope-' + newScopeId;
+			const currentClassName = parentBlock.attributes.className || '';
+			const nextClassName = addClass(removeClass(currentClassName, oldScopeClass), newScopeClass);
+
+			if (nextClassName !== currentClassName) {
+				dispatcher.updateBlockAttributes(repair.parentClientId, { className: nextClassName });
+			}
+
+			usages.forEach(function (usage) {
+				if (usage.parentClientId === repair.parentClientId && usage.scopeId === repair.oldScopeId) {
+					dispatcher.updateBlockAttributes(usage.cssClientId, { scopeId: newScopeId });
+				}
+			});
+		});
+
+		window.setTimeout(function () {
+			knownScopedParentIds = snapshotScopedParentIds();
+			scopeDuplicateGuardBusy = false;
+			scheduleEditorPreviewCssUpdateBurst();
+		}, 0);
+	}
+
+	window.setTimeout(function () {
+		knownScopedParentIds = snapshotScopedParentIds();
+		scopeDuplicateGuardReady = true;
+		wp.data.subscribe(repairNewDuplicateScopes);
+	}, 0);
+
+	function buildScopeDiagnostics(attributes, parentBlock, canScopeParent, duplicateParentCount) {
 		const scopeId = sanitizeScopeId(attributes.scopeId || '');
 		const scopeClass = scopeId ? 'revify-scope-' + scopeId : '';
 		const parentClassName = parentBlock && parentBlock.attributes ? (parentBlock.attributes.className || '') : '';
@@ -474,6 +628,13 @@
 			warnings.push({
 				key: 'scope-mismatch',
 				message: 'このCSSブロックの scopeId と、親ブロックの Revify スコープクラスが一致していません。selector を使ったCSSが反映されない可能性があります。'
+			});
+		}
+
+		if (duplicateParentCount > 1) {
+			warnings.push({
+				key: 'duplicate-parent-scope',
+				message: '異なる親ブロックで同じスコープIDが使用されています。複製直後であれば自動で振り直します。既存データの場合は、下側のCSSが上側にも適用される可能性があります。'
 			});
 		}
 
@@ -528,15 +689,16 @@
 				const parentClientId = store.getBlockRootClientId(clientId);
 				return {
 					parentClientId: parentClientId,
-					parentBlock: parentClientId ? store.getBlock(parentClientId) : null
+					parentBlock: parentClientId ? store.getBlock(parentClientId) : null,
+					duplicateParentCount: countDistinctParentsForScope(store.getBlocks(), scopeId)
 				};
-			}, [clientId]);
+			}, [clientId, scopeId]);
 			const dispatch = useDispatch('core/block-editor');
 			const canScopeParent = !!(
 				editor.parentBlock &&
 				hasBlockSupport(editor.parentBlock.name, 'customClassName', true)
 			);
-			const diagnostics = buildScopeDiagnostics(props.attributes, editor.parentBlock, canScopeParent);
+			const diagnostics = buildScopeDiagnostics(props.attributes, editor.parentBlock, canScopeParent, editor.duplicateParentCount);
 
 			useEffect(function () {
 				if (!props.attributes.scopeId) {
@@ -594,20 +756,6 @@
 						warning.message
 					);
 				}),
-				el(
-					'details',
-					{ className: 'revify-ccb-debug' },
-					el('summary', null, __('デバッグ情報を表示', 'revify-custom-css-block')),
-					el('pre', null, JSON.stringify({
-						scopeId: diagnostics.scopeId,
-						scopeClass: diagnostics.scopeClass,
-						selectorUsed: diagnostics.selectorUsed,
-						parentBlockName: diagnostics.parentBlockName,
-						parentClassName: diagnostics.parentClassName,
-						parentScopeClasses: diagnostics.parentScopeClasses,
-						braceBalance: diagnostics.braceBalance
-					}, null, 2))
-				),
 				el(TabPanel, { className: 'revify-ccb-tabs', tabs: tabs }, function (tab) {
 					const placeholders = {
 						base: 'selector {\n\tpadding: 40px;\n}\n\nselector .title {\n\tmargin-bottom: 20px;\n}',

@@ -8,7 +8,7 @@ WordPressのブロックエディター上で、ページ単位・親ブロッ�
 - 設定画面: 設定 > Revify CSS変数
 - GitHubリポジトリ名: `revify-custom-css-block`
 - Git Updater対応: 対応
-- バージョン: 3.0.0
+- バージョン: 3.0.2
 
 ## 主な機能
 
@@ -83,7 +83,7 @@ Primary Branch: main
 bash scripts/build-zip.sh
 ```
 
-`dist/revify-custom-css-block-3.0.0.zip` が生成されます。
+`dist/revify-custom-css-block-3.0.2.zip` が生成されます。
 
 ## 更新配布について
 
@@ -101,11 +101,11 @@ bash scripts/build-zip.sh
 1. `revify-custom-css-block.php` の `Version` と `REVIFY_CCB_VERSION` を更新する
 2. 必要に応じて `readme.txt` と `CHANGELOG.md` を更新する
 3. GitHub に push する
-4. `v3.0.1` のようなタグを作成して push する
+4. `v3.0.2` のようなタグを作成して push する
 5. GitHub Actions が Release ZIP を生成し、Release に添付する
 
 ```bash
-git tag v3.0.1
-git push origin v3.0.1
+git tag v3.0.2
+git push origin v3.0.2
 ```
 

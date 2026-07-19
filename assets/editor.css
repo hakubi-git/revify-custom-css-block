@@ -197,9 +197,21 @@
 	color: #a7a79a;
 }
 
-.revify-ccb-editor-tools .button {
+.revify-ccb-block .revify-ccb-editor-tools button.button.button-small {
 	min-height: 26px;
 	padding: 0 8px;
+	border-color: #6c6d66 !important;
+	background: #34352f !important;
+	color: #fff !important;
+	box-shadow: none !important;
+	text-shadow: none !important;
+}
+
+.revify-ccb-block .revify-ccb-editor-tools button.button.button-small:hover,
+.revify-ccb-block .revify-ccb-editor-tools button.button.button-small:focus {
+	border-color: #a7a79a !important;
+	background: #44453e !important;
+	color: #fff !important;
 }
 
 .revify-ccb-code-editor-wrap.is-plain .revify-ccb-code-field {
@@ -207,28 +219,3 @@
 	color: #f8f8f2;
 }
 
-.revify-ccb-debug {
-	margin: 12px;
-	padding: 10px 12px;
-	border: 1px solid #dcdcde;
-	border-radius: 4px;
-	background: #f6f7f7;
-}
-
-.revify-ccb-debug summary {
-	cursor: pointer;
-	font-size: 12px;
-	font-weight: 600;
-	color: #50575e;
-}
-
-.revify-ccb-debug pre {
-	margin: 10px 0 0;
-	padding: 10px;
-	max-height: 220px;
-	overflow: auto;
-	background: #1f201c;
-	color: #f8f8f2;
-	font-size: 12px;
-	line-height: 1.6;
-}
