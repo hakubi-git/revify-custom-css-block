@@ -1,16 +1,39 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-PLUGIN_DIR="$ROOT_DIR/revify-custom-css-block"
-DIST_DIR="$ROOT_DIR/dist"
-ZIP_NAME="revify-custom-css-block-3.0.0.zip"
+SLUG="revify-custom-css-block"
+VERSION="$(php -r '$f=file_get_contents("revify-custom-css-block.php"); preg_match("/Version:\\s*([^\\n]+)/", $f, $m); echo trim($m[1] ?? "0.0.0");')"
+DIST_DIR="dist"
+PACKAGE_DIR="${DIST_DIR}/${SLUG}"
+ZIP_PATH="${DIST_DIR}/${SLUG}-${VERSION}.zip"
 
-rm -rf "$DIST_DIR"
-mkdir -p "$DIST_DIR"
-cd "$ROOT_DIR"
-zip -r "$DIST_DIR/$ZIP_NAME" "revify-custom-css-block" \
-  -x "*/.DS_Store" \
-  -x "*/node_modules/*"
+rm -rf "${DIST_DIR}"
+mkdir -p "${PACKAGE_DIR}"
 
-echo "$DIST_DIR/$ZIP_NAME"
+if [ -f composer.json ] && [ ! -d vendor ]; then
+  if command -v composer >/dev/null 2>&1; then
+    composer install --no-dev --prefer-dist --optimize-autoloader
+  else
+    echo "composer が見つかりません。plugin-update-checker を同梱するには composer install が必要です。" >&2
+    exit 1
+  fi
+fi
+
+rsync -a ./ "${PACKAGE_DIR}/" \
+  --exclude=".git" \
+  --exclude=".github" \
+  --exclude="dist" \
+  --exclude="scripts" \
+  --exclude="node_modules" \
+  --exclude=".DS_Store" \
+  --exclude=".gitignore" \
+  --exclude=".gitattributes" \
+  --exclude=".distignore" \
+  --exclude="composer.json" \
+  --exclude="composer.lock" \
+  --exclude="README.md"
+
+(cd "${DIST_DIR}" && zip -qr "${SLUG}-${VERSION}.zip" "${SLUG}")
+rm -rf "${PACKAGE_DIR}"
+
+echo "Created: ${ZIP_PATH}"

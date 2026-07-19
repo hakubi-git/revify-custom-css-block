@@ -14,3 +14,12 @@
 ## 2.9.1
 
 - ブロックエディターのiframeキャンバス再生成後も、編集画面用CSSを再注入するよう調整。
+
+## 3.0.0
+
+- プラグイン名を Revify Custom CSS Block に統一。
+- GitHub 公開リポジトリでの管理を前提に整理。
+- plugin-update-checker による GitHub 更新確認に対応。
+- GitHub Release 用 ZIP を生成する workflow を追加。
+- スコープ異常の警告表示と簡易括弧チェックを追加。
+- 保存済みブロック構造を自動修復しない方針に固定。

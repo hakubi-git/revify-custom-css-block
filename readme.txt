@@ -68,3 +68,11 @@ Revify Custom CSS Block は、ブロックエディター上で見た目を確�
 
 = 2.8.3 =
 * CSS変数設定ページの使用例を、`selector`を使わない一般的なCSSクラス例へ変更しました。機能面の変更はありません。
+
+== Changelog ==
+
+= 3.0.0 =
+* Revify Custom CSS Block として名称を統一しました。
+* plugin-update-checker によるGitHub更新確認へ対応しました。
+* GitHub Release 用ZIPの配布を前提にしました。
+* 保存済みブロック構造を自動修復しない安定運用方針にしました。

@@ -84,3 +84,28 @@ bash scripts/build-zip.sh
 ```
 
 `dist/revify-custom-css-block-3.0.0.zip` が生成されます。
+
+## 更新配布について
+
+このプラグインは `plugin-update-checker` を使い、GitHub の公開リポジトリから更新確認できる構成です。
+
+- Repository: `https://github.com/hakubi-git/revify-custom-css-block`
+- Slug: `revify-custom-css-block`
+- Release ZIP: `revify-custom-css-block-x.x.x.zip`
+
+通常の利用者は、このリポジトリの Release に添付された ZIP を WordPress 管理画面からインストールします。
+以後、バージョンが上がると WordPress 管理画面に更新通知が出る想定です。
+
+### リリース手順
+
+1. `revify-custom-css-block.php` の `Version` と `REVIFY_CCB_VERSION` を更新する
+2. 必要に応じて `readme.txt` と `CHANGELOG.md` を更新する
+3. GitHub に push する
+4. `v3.0.1` のようなタグを作成して push する
+5. GitHub Actions が Release ZIP を生成し、Release に添付する
+
+```bash
+git tag v3.0.1
+git push origin v3.0.1
+```
+

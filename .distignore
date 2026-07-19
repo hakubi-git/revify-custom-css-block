@@ -1,0 +1,11 @@
+.git/
+.github/
+scripts/
+node_modules/
+.DS_Store
+.gitignore
+.gitattributes
+.distignore
+composer.json
+composer.lock
+README.md

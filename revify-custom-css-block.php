@@ -4,8 +4,8 @@
  * Description: ブロックエディターに、親ブロック単位で適用できるカスタムCSSブロックを追加します。
  * Version: 3.0.0
  * Author: Revify
- * GitHub Plugin URI: https://github.com/hakubi-git/revify-custom-css-block
- * Primary Branch: main
+ * Plugin URI: https://github.com/hakubi-git/revify-custom-css-block
+ * Update URI: https://github.com/hakubi-git/revify-custom-css-block
  * License: GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
  * Text Domain: revify-custom-css-block
@@ -21,6 +21,41 @@ define( 'REVIFY_CCB_URL', plugin_dir_url( __FILE__ ) );
  * 管理画面で保存するグローバルCSS変数のオプション名です。
  */
 define( 'REVIFY_CCB_GLOBAL_VARS_OPTION', 'revify_ccb_global_vars' );
+
+/**
+ * GitHub上の公開リポジトリから更新通知を受け取るための設定です。
+ *
+ * plugin-update-checker は Composer で同梱される想定です。
+ * vendor/autoload.php がない環境でもプラグイン本体は動くように、存在確認してから読み込みます。
+ */
+function revify_ccb_register_update_checker() {
+	$autoload = REVIFY_CCB_PATH . 'vendor/autoload.php';
+
+	if ( file_exists( $autoload ) ) {
+		require_once $autoload;
+	}
+
+	if ( ! class_exists( '\\YahnisElsts\\PluginUpdateChecker\\v5\\PucFactory' ) ) {
+		return;
+	}
+
+	$update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+		'https://github.com/hakubi-git/revify-custom-css-block/',
+		__FILE__,
+		'revify-custom-css-block'
+	);
+
+	// 最新リリースにZIPアセットがある場合は、そのZIPを優先して利用します。
+	if ( method_exists( $update_checker, 'getVcsApi' ) && method_exists( $update_checker->getVcsApi(), 'enableReleaseAssets' ) ) {
+		$update_checker->getVcsApi()->enableReleaseAssets( '/revify-custom-css-block.*\.zip($|[?&#])/i' );
+	}
+
+	// リリースやタグがない場合のフォールバックとして main ブランチを見ます。
+	if ( method_exists( $update_checker, 'setBranch' ) ) {
+		$update_checker->setBranch( 'main' );
+	}
+}
+add_action( 'plugins_loaded', 'revify_ccb_register_update_checker', 1 );
 
 /**
  * CSS変数名を --name 形式へ正規化します。
