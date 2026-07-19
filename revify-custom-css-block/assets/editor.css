@@ -1,0 +1,234 @@
+.revify-ccb-block {
+	border: 1px solid #c3c4c7;
+	border-radius: 6px;
+	background: #fff;
+	overflow: hidden;
+}
+
+.revify-ccb-header {
+	display: flex;
+	align-items: baseline;
+	gap: 12px;
+	padding: 12px 14px;
+	border-bottom: 1px solid #dcdcde;
+	background: #f6f7f7;
+}
+
+.revify-ccb-header strong {
+	font-size: 14px;
+}
+
+.revify-ccb-header span {
+	color: #646970;
+	font-size: 12px;
+}
+
+.revify-ccb-tabs .components-tab-panel__tabs {
+	padding: 8px 10px 0;
+	border-bottom: 1px solid #dcdcde;
+}
+
+.revify-ccb-tabs .components-tab-panel__tabs-item {
+	height: 36px;
+}
+
+.revify-ccb-code-editor-wrap {
+	position: relative;
+	height: 320px;
+	min-height: 180px;
+	max-height: 80vh;
+	background: #272822;
+	overflow: hidden;
+	resize: vertical;
+}
+
+.revify-ccb-code-field {
+	display: block;
+	width: 100%;
+	height: 100%;
+	min-height: 180px;
+	margin: 0;
+	padding: 16px;
+	border: 0;
+	border-radius: 0;
+	background: #272822;
+	color: #f8f8f2;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 13px;
+	line-height: 1.7;
+	resize: none;
+	tab-size: 4;
+}
+
+
+/* プレースホルダーは入力例として控えめに表示します。 */
+.revify-ccb-code-field::placeholder {
+	color: rgba(248, 248, 242, 0.28);
+	opacity: 1;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .CodeMirror-placeholder {
+	color: rgba(248, 248, 242, 0.28);
+	opacity: 1;
+}
+
+.revify-ccb-code-field:focus {
+	outline: 2px solid #2271b1;
+	outline-offset: -2px;
+	box-shadow: none;
+}
+
+.revify-ccb-code-editor-wrap .CodeMirror {
+	height: 100%;
+	min-height: 180px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+	font-size: 13px;
+	line-height: 1.7;
+}
+
+.revify-ccb-code-editor-wrap .CodeMirror-scroll {
+	height: 100%;
+	min-height: 0;
+	max-height: none;
+}
+
+.revify-ccb-code-editor-wrap .CodeMirror-gutters {
+	border-right: 1px solid #3b3a32;
+}
+
+/* WordPress標準CodeMirrorに適用するMonokai風テーマ */
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai.CodeMirror {
+	background: #272822;
+	color: #f8f8f2;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .CodeMirror-gutters {
+	background: #272822;
+	color: #90908a;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .CodeMirror-linenumber {
+	color: #75715e;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .CodeMirror-cursor {
+	border-left-color: #f8f8f0;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .CodeMirror-selected {
+	background: #49483e;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .CodeMirror-activeline-background {
+	background: #303128;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .CodeMirror-matchingbracket {
+	color: #a6e22e;
+	text-decoration: underline;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-comment {
+	color: #75715e;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-atom,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-number {
+	color: #ae81ff;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-attribute,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-property,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-variable-2 {
+	color: #66d9ef;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-keyword,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-qualifier,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-builtin {
+	color: #f92672;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-string,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-string-2 {
+	color: #e6db74;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-tag,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-def,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-variable,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-variable-3 {
+	color: #a6e22e;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-operator,
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-meta {
+	color: #f8f8f2;
+}
+
+.revify-ccb-code-editor-wrap .cm-s-revify-monokai .cm-error {
+	color: #a6e22e;
+	background: transparent;
+	text-decoration: none;
+}
+
+.revify-ccb-block > .components-notice {
+	margin: 12px;
+}
+
+.revify-ccb-field-shell {
+	background: #fff;
+}
+
+.revify-ccb-editor-tools {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 12px;
+	padding: 8px 10px;
+	border-bottom: 1px solid #3b3a32;
+	background: #1f201c;
+	color: #cfcfc2;
+}
+
+.revify-ccb-editor-mode {
+	font-size: 12px;
+	line-height: 1;
+	color: #a7a79a;
+}
+
+.revify-ccb-editor-tools .button {
+	min-height: 26px;
+	padding: 0 8px;
+}
+
+.revify-ccb-code-editor-wrap.is-plain .revify-ccb-code-field {
+	background: #272822;
+	color: #f8f8f2;
+}
+
+.revify-ccb-debug {
+	margin: 12px;
+	padding: 10px 12px;
+	border: 1px solid #dcdcde;
+	border-radius: 4px;
+	background: #f6f7f7;
+}
+
+.revify-ccb-debug summary {
+	cursor: pointer;
+	font-size: 12px;
+	font-weight: 600;
+	color: #50575e;
+}
+
+.revify-ccb-debug pre {
+	margin: 10px 0 0;
+	padding: 10px;
+	max-height: 220px;
+	overflow: auto;
+	background: #1f201c;
+	color: #f8f8f2;
+	font-size: 12px;
+	line-height: 1.6;
+}
