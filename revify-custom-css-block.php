@@ -2,7 +2,7 @@
 /**
  * Plugin Name: Revify Custom CSS Block
  * Description: ブロックエディターに、親ブロック単位で適用できるカスタムCSSブロックを追加します。
- * Version: 3.0.2
+ * Version: 3.0.3
  * Author: Revify
  * Plugin URI: https://github.com/hakubi-git/revify-custom-css-block
  * Update URI: https://github.com/hakubi-git/revify-custom-css-block
@@ -13,7 +13,7 @@
 
 defined( 'ABSPATH' ) || exit;
 
-define( 'REVIFY_CCB_VERSION', '3.0.2' );
+define( 'REVIFY_CCB_VERSION', '3.0.3' );
 define( 'REVIFY_CCB_PATH', plugin_dir_path( __FILE__ ) );
 define( 'REVIFY_CCB_URL', plugin_dir_url( __FILE__ ) );
 

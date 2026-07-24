@@ -10,6 +10,7 @@
 	const useBlockProps = wp.blockEditor.useBlockProps;
 	const TabPanel = wp.components.TabPanel;
 	const Notice = wp.components.Notice;
+	const Button = wp.components.Button;
 	const useSelect = wp.data.useSelect;
 	const useDispatch = wp.data.useDispatch;
 	const __ = wp.i18n.__;
@@ -601,6 +602,43 @@
 		wp.data.subscribe(repairNewDuplicateScopes);
 	}, 0);
 
+	function reassignScopeForParent(parentClientId, oldScopeId) {
+		const store = wp.data.select('core/block-editor');
+		const dispatcher = wp.data.dispatch('core/block-editor');
+		if (!parentClientId || !oldScopeId || !store || !store.getBlocks || !dispatcher || !dispatcher.updateBlockAttributes) {
+			return false;
+		}
+
+		const parentBlock = store.getBlock(parentClientId);
+		if (!parentBlock || !parentBlock.attributes) return false;
+
+		const usages = [];
+		collectScopedParents(store.getBlocks(), null, usages);
+		const usedScopeIds = new Set(usages.map(function (usage) { return usage.scopeId; }));
+		const newScopeId = createFreshScopeId(usedScopeIds);
+		const oldScopeClass = 'revify-scope-' + oldScopeId;
+		const newScopeClass = 'revify-scope-' + newScopeId;
+		const currentClassName = parentBlock.attributes.className || '';
+		const nextClassName = addClass(removeClass(currentClassName, oldScopeClass), newScopeClass);
+
+		if (nextClassName !== currentClassName) {
+			dispatcher.updateBlockAttributes(parentClientId, { className: nextClassName });
+		}
+
+		usages.forEach(function (usage) {
+			if (usage.parentClientId === parentClientId && usage.scopeId === oldScopeId) {
+				dispatcher.updateBlockAttributes(usage.cssClientId, { scopeId: newScopeId });
+			}
+		});
+
+		window.setTimeout(function () {
+			knownScopedParentIds = snapshotScopedParentIds();
+			scheduleEditorPreviewCssUpdateBurst();
+		}, 0);
+
+		return true;
+	}
+
 	function buildScopeDiagnostics(attributes, parentBlock, canScopeParent, duplicateParentCount) {
 		const scopeId = sanitizeScopeId(attributes.scopeId || '');
 		const scopeClass = scopeId ? 'revify-scope-' + scopeId : '';
@@ -634,7 +672,7 @@
 		if (duplicateParentCount > 1) {
 			warnings.push({
 				key: 'duplicate-parent-scope',
-				message: '異なる親ブロックで同じスコープIDが使用されています。複製直後であれば自動で振り直します。既存データの場合は、下側のCSSが上側にも適用される可能性があります。'
+				message: '異なる親ブロックで同じスコープIDが使用されています。CSSが互いに上書きされる可能性があります。'
 			});
 		}
 
@@ -750,10 +788,29 @@
 					description: __('`selector` は、このカスタムCSSブロックを囲んでいる親ブロックを指定します。', 'revify-custom-css-block')
 				}),
 				diagnostics.warnings.map(function (warning) {
+					const noticeContent = warning.key === 'duplicate-parent-scope'
+						? el(
+							'div',
+							{ className: 'revify-ccb-scope-warning' },
+							el('p', null, warning.message),
+							el(
+								Button,
+								{
+									variant: 'secondary',
+									size: 'small',
+									onClick: function () {
+										reassignScopeForParent(editor.parentClientId, diagnostics.scopeId);
+									}
+								},
+								__('このセクションのスコープIDを振り直す', 'revify-custom-css-block')
+							)
+						)
+						: warning.message;
+
 					return el(
 						Notice,
 						{ key: warning.key, status: warning.key === 'brace-balance' ? 'error' : 'warning', isDismissible: false },
-						warning.message
+						noticeContent
 					);
 				}),
 				el(TabPanel, { className: 'revify-ccb-tabs', tabs: tabs }, function (tab) {

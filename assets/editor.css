@@ -219,3 +219,11 @@
 	color: #f8f8f2;
 }
 
+
+.revify-ccb-scope-warning p {
+	margin: 0 0 10px;
+}
+
+.revify-ccb-scope-warning .components-button {
+	min-height: 30px;
+}

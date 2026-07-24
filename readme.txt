@@ -2,9 +2,9 @@
 Contributors: revify
 Tags: custom css, block editor, gutenberg, responsive css
 Requires at least: 6.5
-Tested up to: 6.8
+Tested up to: 7.0
 Requires PHP: 7.4
-Stable tag: 3.0.2
+Stable tag: 3.0.3
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
@@ -53,7 +53,7 @@ Revify Custom CSS Block は、ブロックエディター上で見た目を確�
 
 == Changelog ==
 
-= 3.0.2 =
+= 3.0.3 =
 * 親セクションの複製時に、複製先のスコープIDを自動で振り直すようにしました。
 * 異なる親ブロックで同じスコープIDが残っている場合の警告を追加しました。
 * 既存ページを開いただけではスコープIDを変更しません。
@@ -81,7 +81,7 @@ Revify Custom CSS Block は、ブロックエディター上で見た目を確�
 
 == Changelog ==
 
-= 3.0.2 =
+= 3.0.3 =
 * 親セクションの複製時に、複製先のスコープIDを自動で振り直すようにしました。
 * 異なる親ブロックで同じスコープIDが残っている場合の警告を追加しました。
 * 既存ページを開いただけではスコープIDを変更しません。
